@@ -1863,20 +1863,12 @@
   ],
   "servers": [
     {
-      "url": "/",
-      "description": "현재 서버 (Current Host)"
-    },
-    {
       "url": "https://api-dev.altis-ai.com",
       "description": "개발 서버 (Development)"
     },
     {
       "url": "https://api.altis-ai.com",
       "description": "운영 서버 (Production)"
-    },
-    {
-      "url": "http://localhost:3000",
-      "description": "로컬 서버 (Local)"
     }
   ],
   "components": {

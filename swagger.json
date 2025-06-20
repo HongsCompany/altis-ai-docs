@@ -1,0 +1,2944 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/auth/signup": {
+      "post": {
+        "description": "새로운 사용자를 등록합니다. 요청 시 `x-company-id` 헤더에 회사 ID를 포함해야 합니다. 응답으로 사용자 정보가 반환됩니다.",
+        "operationId": "AuthController_signUp",
+        "parameters": [
+          {
+            "name": "x-company-id",
+            "required": true,
+            "in": "header",
+            "description": "회사 ID",
+            "schema": {
+              "type": "string",
+              "example": "altisai-dev"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignUpDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "회원가입 성공. 사용자 정보를 반환합니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "회원가입 실패 (예: 잘못된 입력 값, 이미 가입된 이메일 등)"
+          }
+        },
+        "summary": "회원가입",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "description": "사용자 이메일과 비밀번호로 로그인하고 인증 토큰을 발급받습니다. 요청 시 `x-company-id` 헤더에 회사 ID를 포함해야 합니다.",
+        "operationId": "AuthController_login",
+        "parameters": [
+          {
+            "name": "x-company-id",
+            "required": true,
+            "in": "header",
+            "description": "회사 ID",
+            "schema": {
+              "type": "string",
+              "example": "altisai-dev"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "로그인 성공. 인증 토큰 정보를 반환합니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthTokenResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "로그인 실패 (예: 잘못된 자격 증명, 존재하지 않는 사용자 등)"
+          }
+        },
+        "summary": "로그인",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/change-password": {
+      "post": {
+        "description": "로그인된 사용자의 현재 비밀번호를 새로운 비밀번호로 변경합니다. `Authorization` 헤더에 Bearer 토큰이 필요합니다.",
+        "operationId": "AuthController_changePassword",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "비밀번호 변경 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Password changed successfully."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "비밀번호 변경 실패 (예: 현재 비밀번호 불일치, 새 비밀번호 정책 위반 등)"
+          },
+          "401": {
+            "description": "인증 실패 (유효하지 않은 토큰)"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "비밀번호 변경",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/forgot-password": {
+      "post": {
+        "description": "비밀번호 재설정을 위한 확인 코드를 사용자 이메일로 발송합니다. `x-company-id` 헤더가 필요합니다.",
+        "operationId": "AuthController_forgotPassword",
+        "parameters": [
+          {
+            "name": "x-company-id",
+            "required": true,
+            "in": "header",
+            "description": "회사 ID",
+            "schema": {
+              "type": "string",
+              "example": "altisai-dev"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "비밀번호 재설정 코드 발송 요청 성공. 이메일을 확인하세요.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Password reset code sent to email."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "요청 실패 (예: 존재하지 않는 사용자, 잘못된 회사 ID 등)"
+          }
+        },
+        "summary": "비밀번호 찾기 (초기화 요청)",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/confirm-forgot-password": {
+      "post": {
+        "description": "비밀번호 찾기로 이메일에서 받은 확인 코드와 새 비밀번호를 입력하여 비밀번호를 재설정합니다. `x-company-id` 헤더가 필요합니다.",
+        "operationId": "AuthController_confirmForgotPassword",
+        "parameters": [
+          {
+            "name": "x-company-id",
+            "required": true,
+            "in": "header",
+            "description": "회사 ID",
+            "schema": {
+              "type": "string",
+              "example": "altisai-dev"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmForgotPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "비밀번호 재설정 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Password reset successfully."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "비밀번호 재설정 실패 (예: 잘못된 확인 코드, 새 비밀번호 정책 위반 등)"
+          }
+        },
+        "summary": "비밀번호 재설정 확인 (새 비밀번호 설정)",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "description": "Refresh Token을 사용하여 새로운 Access Token을 발급받습니다.",
+        "operationId": "AuthController_refreshToken",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Token 갱신 성공. 새로운 Access Token과 ID Token을 반환합니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshTokenResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Token 갱신 실패 (예: 잘못된 Refresh Token)"
+          },
+          "401": {
+            "description": "Refresh Token이 유효하지 않거나 만료됨"
+          }
+        },
+        "summary": "Access Token 갱신",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/users/me": {
+      "get": {
+        "description": "로그인한 사용자 자신의 정보를 조회합니다.",
+        "operationId": "UserController_getMe",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "사용자 정보 조회 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패 또는 토큰 만료"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "현재 사용자 정보 조회",
+        "tags": [
+          "User"
+        ]
+      },
+      "patch": {
+        "description": "로그인한 사용자 자신의 정보를 업데이트합니다.",
+        "operationId": "UserController_updateMe",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "사용자 정보 업데이트 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청 또는 유효하지 않은 데이터"
+          },
+          "401": {
+            "description": "인증 실패 또는 토큰 만료"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "내 정보 업데이트",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/users": {
+      "get": {
+        "description": "ALT2는 모든 사용자를, ADMIN은 자신의 회사 사용자만 조회할 수 있습니다.",
+        "operationId": "UserController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "사용자 목록 조회 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패 또는 토큰 만료"
+          },
+          "403": {
+            "description": "권한 부족 (Admin 또는 Alt2 권한 필요)"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "사용자 목록 조회",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "description": "ID로 특정 사용자를 조회합니다. ALT2는 모든 사용자를, ADMIN은 자신의 회사 사용자만, USER/UNKNOWN은 자신만 조회 가능합니다.",
+        "operationId": "UserController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "조회할 사용자 ID 또는 \"me\"(자신)",
+            "schema": {
+              "example": "12345678-1234-1234-1234-123456789012",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "사용자 조회 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패 또는 토큰 만료"
+          },
+          "403": {
+            "description": "권한 부족"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "특정 사용자 조회",
+        "tags": [
+          "User"
+        ]
+      },
+      "patch": {
+        "description": "특정 사용자의 정보를 업데이트합니다. ALT2는 모든 사용자를, ADMIN은 자신의 회사 사용자만, USER는 자신만 업데이트할 수 있습니다.",
+        "operationId": "UserController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "업데이트할 사용자 ID 또는 \"me\"(자신)",
+            "schema": {
+              "example": "12345678-1234-1234-1234-123456789012",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "사용자 정보 업데이트 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청 또는 유효하지 않은 데이터"
+          },
+          "401": {
+            "description": "인증 실패 또는 토큰 만료"
+          },
+          "403": {
+            "description": "권한 부족"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "사용자 정보 업데이트",
+        "tags": [
+          "User"
+        ]
+      },
+      "delete": {
+        "description": "ALT2 권한으로만 사용자를 삭제할 수 있습니다. Cognito와 DynamoDB에서 모두 삭제됩니다.",
+        "operationId": "UserController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "삭제할 사용자 ID",
+            "schema": {
+              "example": "12345678-1234-1234-1234-123456789012",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "사용자 삭제 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "사용자가 성공적으로 삭제되었습니다."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패 또는 토큰 만료"
+          },
+          "403": {
+            "description": "권한 부족 (ALT2 권한 필요)"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "사용자 삭제",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/admin/signup": {
+      "post": {
+        "operationId": "AdminController_signUpAdmin",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignUpAdminDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Admin/Alt2 사용자가 성공적으로 생성되었습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청 파라미터입니다."
+          },
+          "403": {
+            "description": "권한이 없습니다."
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "ALT2 사용자에 의한 Admin/Alt2 사용자 생성",
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
+    "/companies": {
+      "get": {
+        "description": "회사 목록을 조회합니다. ALT2는 모든 회사를, ADMIN과 USER는 자신의 회사만 조회할 수 있습니다.",
+        "operationId": "CompanyController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "회사 목록 조회 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CompanyResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "접근 권한 없음"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "회사 목록 조회",
+        "tags": [
+          "Company"
+        ]
+      }
+    },
+    "/companies/sync": {
+      "post": {
+        "description": "ALT2 권한을 가진 사용자가 CloudFront에서 회사 정보를 동기화합니다.",
+        "operationId": "CompanyController_sync",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "회사 정보 동기화 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CompanyResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "접근 권한 없음 (ALT2 권한 필요)"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "회사 정보 동기화",
+        "tags": [
+          "Company"
+        ]
+      }
+    },
+    "/companies/{id}": {
+      "get": {
+        "description": "특정 회사를 조회합니다. ALT2는 모든 회사를, ADMIN과 USER는 자신의 회사만 조회할 수 있습니다. 회사에 속한 사이트 목록이 포함됩니다.",
+        "operationId": "CompanyController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "회사 ID 또는 \"me\"(자신의 회사)",
+            "schema": {
+              "example": "altis-ai",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "회사 조회 성공. 속한 사이트 목록이 포함됩니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanyResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "접근 권한 없음"
+          },
+          "404": {
+            "description": "회사를 찾을 수 없음"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "회사 상세 조회",
+        "tags": [
+          "Company"
+        ]
+      },
+      "patch": {
+        "description": "회사 정보를 업데이트합니다. ALT2는 모든 회사와 모든 필드를, ADMIN은 자신의 회사 이름만 수정할 수 있습니다.",
+        "operationId": "CompanyController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "회사 ID 또는 \"me\"(자신의 회사)",
+            "schema": {
+              "example": "altis-ai",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCompanyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "회사 정보 업데이트 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanyResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 데이터로 인한 업데이트 실패"
+          },
+          "403": {
+            "description": "접근 권한 없음"
+          },
+          "404": {
+            "description": "회사를 찾을 수 없음"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "회사 정보 업데이트",
+        "tags": [
+          "Company"
+        ]
+      },
+      "delete": {
+        "description": "회사를 삭제합니다. ALT2 권한이 필요합니다.",
+        "operationId": "CompanyController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "삭제할 회사 ID",
+            "schema": {
+              "example": "altis-ai",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "회사 삭제 성공"
+          },
+          "403": {
+            "description": "접근 권한 없음 (ALT2 권한 필요)"
+          },
+          "404": {
+            "description": "회사를 찾을 수 없음"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "회사 삭제",
+        "tags": [
+          "Company"
+        ]
+      }
+    },
+    "/sites": {
+      "post": {
+        "description": "새로운 사이트를 생성합니다. ALT2 권한이 필요합니다.",
+        "operationId": "SiteController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSiteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "사이트 생성 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 데이터로 인한 생성 실패"
+          },
+          "403": {
+            "description": "접근 권한 없음 (ALT2 권한 필요)"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "사이트 생성",
+        "tags": [
+          "Site"
+        ]
+      },
+      "get": {
+        "description": "사이트 목록을 조회합니다. 각 사이트에는 연결된 구역(zone) 정보가 포함됩니다. ALT2는 모든 사이트, ADMIN은 회사의 모든 사이트, USER는 자신에게 할당된 사이트만 조회할 수 있습니다.",
+        "operationId": "SiteController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "사이트 목록 조회 성공. 각 사이트의 구역 정보가 포함됩니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SiteResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "접근 권한 없음"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "사이트 목록 조회",
+        "tags": [
+          "Site"
+        ]
+      }
+    },
+    "/sites/{id}": {
+      "get": {
+        "description": "특정 사이트의 상세 정보를 조회합니다. 사용자 권한에 따라 접근 가능한 사이트가 제한됩니다. 연결된 구역(zone) 정보가 포함됩니다.",
+        "operationId": "SiteController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "사이트 상세 정보 조회 성공. 연결된 구역 정보가 포함됩니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "접근 권한 없음"
+          },
+          "404": {
+            "description": "사이트를 찾을 수 없음"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "사이트 상세 조회",
+        "tags": [
+          "Site"
+        ]
+      },
+      "patch": {
+        "description": "특정 사이트의 정보를 수정합니다. 사용자 권한에 따라 수정 가능한 사이트가 제한됩니다.",
+        "operationId": "SiteController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSiteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "사이트 정보 수정 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 데이터로 인한 수정 실패"
+          },
+          "403": {
+            "description": "접근 권한 없음"
+          },
+          "404": {
+            "description": "사이트를 찾을 수 없음"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "사이트 정보 수정",
+        "tags": [
+          "Site"
+        ]
+      },
+      "delete": {
+        "description": "특정 사이트를 삭제합니다. ALT2 권한이 필요합니다.",
+        "operationId": "SiteController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "사이트 삭제 성공"
+          },
+          "403": {
+            "description": "접근 권한 없음 (ALT2 권한 필요)"
+          },
+          "404": {
+            "description": "사이트를 찾을 수 없음"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "사이트 삭제",
+        "tags": [
+          "Site"
+        ]
+      }
+    },
+    "/zones": {
+      "post": {
+        "description": "새로운 구역을 생성합니다. ALT2는 모든 회사/사이트에 대해, ADMIN은 자신이 속한 회사의 사이트에 대해, USER는 할당된 사이트에 대해서만 가능합니다.",
+        "operationId": "ZoneController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateZoneDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "구역이 성공적으로 생성되었습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ZoneResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청 형식 또는 유효성 검사 실패"
+          },
+          "403": {
+            "description": "접근 권한이 없습니다."
+          },
+          "404": {
+            "description": "사이트를 찾을 수 없습니다."
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "구역 생성",
+        "tags": [
+          "Zone"
+        ]
+      },
+      "get": {
+        "description": "ALT2는 모든 구역을 조회, ADMIN은 자신의 회사 구역을, USER는 할당된 사이트의 구역을 조회할 수 있습니다.",
+        "operationId": "ZoneController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "구역 목록을 반환합니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ZoneResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "접근 권한이 없습니다."
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "구역 목록 조회",
+        "tags": [
+          "Zone"
+        ]
+      }
+    },
+    "/zones/{id}": {
+      "get": {
+        "description": "특정 ID의 구역을 조회합니다. 사용자 권한에 따라 접근 가능한 구역이 제한됩니다.",
+        "operationId": "ZoneController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "구역 ID",
+            "schema": {
+              "example": "zone-123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "구역 정보를 반환합니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ZoneResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "접근 권한이 없습니다."
+          },
+          "404": {
+            "description": "구역을 찾을 수 없습니다."
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "구역 상세 조회",
+        "tags": [
+          "Zone"
+        ]
+      },
+      "patch": {
+        "description": "구역의 정보를 업데이트합니다. 역할에 따라 접근 권한이 제한됩니다.",
+        "operationId": "ZoneController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "구역 ID",
+            "schema": {
+              "example": "zone-123",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateZoneDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "업데이트된 구역 정보를 반환합니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ZoneResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청 형식 또는 유효성 검사 실패"
+          },
+          "403": {
+            "description": "접근 권한이 없습니다."
+          },
+          "404": {
+            "description": "구역을 찾을 수 없습니다."
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "구역 정보 업데이트",
+        "tags": [
+          "Zone"
+        ]
+      },
+      "delete": {
+        "description": "특정 ID의 구역을 삭제합니다. 해당 구역에 연결된 게이트웨이가 없어야 삭제 가능합니다.",
+        "operationId": "ZoneController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "구역 ID",
+            "schema": {
+              "example": "zone-123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "구역이 성공적으로 삭제되었습니다."
+          },
+          "403": {
+            "description": "접근 권한이 없거나 연결된 게이트웨이가 있어 삭제할 수 없습니다."
+          },
+          "404": {
+            "description": "구역을 찾을 수 없습니다."
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "구역 삭제",
+        "tags": [
+          "Zone"
+        ]
+      }
+    },
+    "/gateways": {
+      "post": {
+        "description": "새로운 게이트웨이를 생성합니다. ALT2권한이 필요함.",
+        "operationId": "GatewayController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateGatewayDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "게이트웨이가 성공적으로 생성되었습니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청 형식 또는 유효성 검사 실패"
+          },
+          "401": {
+            "description": "인증 실패 또는 토큰 만료"
+          },
+          "403": {
+            "description": "접근 권한이 없습니다."
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "게이트웨이 생성",
+        "tags": [
+          "Gateway"
+        ]
+      },
+      "get": {
+        "description": "ALT2는 모든 게이트웨이를, ADMIN은 자신의 회사 게이트웨이를, USER는 할당된 사이트의 게이트웨이만 조회할 수 있습니다. 각 게이트웨이에는 연결된 사이트와 구역 정보가 포함됩니다.",
+        "operationId": "GatewayController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "게이트웨이 목록을 반환합니다. 각 게이트웨이에는 연결된 사이트와 구역 정보가 포함됩니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GatewayResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패 또는 토큰 만료"
+          },
+          "403": {
+            "description": "접근 권한이 없습니다."
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "게이트웨이 목록 조회",
+        "tags": [
+          "Gateway"
+        ]
+      }
+    },
+    "/gateways/{id}": {
+      "get": {
+        "description": "특정 ID의 게이트웨이를 조회합니다. 사용자 권한에 따라 접근 가능한 게이트웨이가 제한됩니다. 연결된 사이트와 구역 정보가 포함됩니다.",
+        "operationId": "GatewayController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "게이트웨이 ID",
+            "schema": {
+              "example": "gateway-123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "게이트웨이 정보를 반환합니다. 연결된 사이트와 구역 정보가 포함됩니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패 또는 토큰 만료"
+          },
+          "403": {
+            "description": "접근 권한이 없습니다."
+          },
+          "404": {
+            "description": "게이트웨이를 찾을 수 없습니다."
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "게이트웨이 상세 조회",
+        "tags": [
+          "Gateway"
+        ]
+      },
+      "patch": {
+        "description": "게이트웨이의 정보를 업데이트합니다. 사용자 권한에 따라 접근이 제한됩니다.",
+        "operationId": "GatewayController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "게이트웨이 ID",
+            "schema": {
+              "example": "gateway-123",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateGatewayDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "업데이트된 게이트웨이 정보를 반환합니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청 형식 또는 유효성 검사 실패"
+          },
+          "401": {
+            "description": "인증 실패 또는 토큰 만료"
+          },
+          "403": {
+            "description": "접근 권한이 없습니다."
+          },
+          "404": {
+            "description": "게이트웨이를 찾을 수 없습니다."
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "게이트웨이 정보 업데이트",
+        "tags": [
+          "Gateway"
+        ]
+      },
+      "delete": {
+        "description": "특정 ID의 게이트웨이를 삭제합니다. 사용자 권한에 따라 접근이 제한됩니다.",
+        "operationId": "GatewayController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "게이트웨이 ID",
+            "schema": {
+              "example": "gateway-123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "게이트웨이가 성공적으로 삭제되었습니다."
+          },
+          "401": {
+            "description": "인증 실패 또는 토큰 만료"
+          },
+          "403": {
+            "description": "접근 권한이 없습니다."
+          },
+          "404": {
+            "description": "게이트웨이를 찾을 수 없습니다."
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "게이트웨이 삭제",
+        "tags": [
+          "Gateway"
+        ]
+      }
+    },
+    "/iot-credentials": {
+      "post": {
+        "description": "새로운 AWS IoT 인증 키를 생성합니다. 생성 시 name과 description(선택사항)을 포함할 수 있습니다. 응답에서는 보안상 민감한 정보(certificateArn, certificateId, certificatePem, privateKey, publicKey, policyName)가 제외됩니다. ALT2 또는 ADMIN 권한이 필요합니다.",
+        "operationId": "IoTController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateIoTCredentialDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "IoT 인증 키가 성공적으로 생성되었습니다. 민감한 정보는 제외됩니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IoTCredentialResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청 형식 또는 유효성 검사 실패"
+          },
+          "401": {
+            "description": "인증 실패 또는 토큰 만료"
+          },
+          "403": {
+            "description": "접근 권한이 없습니다."
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "IoT 인증 키 생성",
+        "tags": [
+          "IoT Credentials"
+        ]
+      },
+      "get": {
+        "description": "IoT 인증 키 목록을 조회합니다. 민감한 정보는 제외됩니다.",
+        "operationId": "IoTController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "IoT 인증 키 목록을 반환합니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IoTCredentialResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패 또는 토큰 만료"
+          },
+          "403": {
+            "description": "접근 권한이 없습니다."
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "IoT 인증 키 목록 조회",
+        "tags": [
+          "IoT Credentials"
+        ]
+      }
+    },
+    "/iot-credentials/{id}": {
+      "get": {
+        "description": "특정 ID의 IoT 인증 키를 조회합니다. 민감한 정보는 제외됩니다.",
+        "operationId": "IoTController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "IoT 인증 키 ID (Certificate ID)",
+            "schema": {
+              "example": "cert-1234567890abcdef",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "IoT 인증 키 정보를 반환합니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IoTCredentialResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패 또는 토큰 만료"
+          },
+          "403": {
+            "description": "접근 권한이 없습니다."
+          },
+          "404": {
+            "description": "IoT 인증 키를 찾을 수 없습니다."
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "IoT 인증 키 상세 조회",
+        "tags": [
+          "IoT Credentials"
+        ]
+      },
+      "patch": {
+        "description": "특정 ID의 IoT 인증 키 Private Key를 조회합니다. ALT2 또는 ADMIN만 접근 가능합니다.",
+        "operationId": "IoTController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "IoT 인증 키 ID (Certificate ID)",
+            "schema": {
+              "example": "cert-1234567890abcdef",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateIoTCredentialDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "업데이트된 IoT 인증 키 정보를 반환합니다. 민감한 정보는 제외됩니다.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IoTCredentialResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청 형식 또는 유효성 검사 실패"
+          },
+          "401": {
+            "description": "인증 실패 또는 토큰 만료"
+          },
+          "403": {
+            "description": "접근 권한이 없습니다."
+          },
+          "404": {
+            "description": "IoT 인증 키를 찾을 수 없습니다."
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "IoT 인증 키 Private Key 조회",
+        "tags": [
+          "IoT Credentials"
+        ]
+      },
+      "delete": {
+        "description": "특정 ID의 IoT 인증 키를 삭제합니다. 사용자 권한에 따라 접근이 제한됩니다.",
+        "operationId": "IoTController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "IoT 인증 키 ID (Certificate ID)",
+            "schema": {
+              "example": "cert-1234567890abcdef",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "IoT 인증 키가 성공적으로 삭제되었습니다."
+          },
+          "401": {
+            "description": "인증 실패 또는 토큰 만료"
+          },
+          "403": {
+            "description": "접근 권한이 없습니다."
+          },
+          "404": {
+            "description": "IoT 인증 키를 찾을 수 없습니다."
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "IoT 인증 키 삭제",
+        "tags": [
+          "IoT Credentials"
+        ]
+      }
+    },
+    "/iot-credentials/{id}/download/private-key": {
+      "get": {
+        "description": "IoT 인증 키의 Private Key를 .key 파일로 다운로드합니다. ALT2 또는 소유자만 접근 가능합니다.",
+        "operationId": "IoTController_downloadPrivateKey",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "IoT 인증 키 ID",
+            "schema": {
+              "example": "cert-1234567890abcdef",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Private Key 파일이 성공적으로 다운로드되었습니다.",
+            "content": {
+              "application/x-pem-file": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패 또는 토큰 만료"
+          },
+          "403": {
+            "description": "접근 권한이 없습니다."
+          },
+          "404": {
+            "description": "IoT 인증 키를 찾을 수 없습니다."
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Private Key 파일 다운로드",
+        "tags": [
+          "IoT Credentials"
+        ]
+      }
+    },
+    "/iot-credentials/{id}/download/certificate": {
+      "get": {
+        "description": "IoT 인증 키의 Certificate PEM을 .crt 파일로 다운로드합니다. ALT2 또는 소유자만 접근 가능합니다.",
+        "operationId": "IoTController_downloadCertificate",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "IoT 인증 키 ID",
+            "schema": {
+              "example": "cert-1234567890abcdef",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Certificate PEM 파일이 성공적으로 다운로드되었습니다.",
+            "content": {
+              "application/x-pem-file": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패 또는 토큰 만료"
+          },
+          "403": {
+            "description": "접근 권한이 없습니다."
+          },
+          "404": {
+            "description": "IoT 인증 키를 찾을 수 없습니다."
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Certificate PEM 파일 다운로드",
+        "tags": [
+          "IoT Credentials"
+        ]
+      }
+    },
+    "/iot-credentials/amazon-root-ca/download": {
+      "get": {
+        "description": "AWS IoT 연결에 필요한 Amazon Root CA 인증서를 .pem 파일로 다운로드합니다. 모든 사용자가 접근 가능합니다.",
+        "operationId": "IoTController_downloadAmazonRootCA",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Amazon Root CA 인증서 파일이 성공적으로 다운로드되었습니다.",
+            "content": {
+              "application/x-pem-file": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패 또는 토큰 만료"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Amazon Root CA 인증서 다운로드",
+        "tags": [
+          "IoT Credentials"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "AltisAI API Documentation",
+    "description": "AltisAI Backend API 문서\n\n주요 기능:\n- AWS Cognito를 통한 사용자 인증\n- 회사, 사이트, 구역, 게이트웨이 관리\n- AWS IoT 인증서 관리 및 파일 다운로드\n- Refresh Token을 통한 토큰 갱신",
+    "version": "2.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "Admin",
+      "description": "관리자용 API - ALT2 권한 필요"
+    },
+    {
+      "name": "Auth",
+      "description": "인증 관련 API - 회원가입, 로그인, 토큰 갱신 등"
+    },
+    {
+      "name": "User",
+      "description": "사용자 관리 API - 사용자 정보 조회 및 수정"
+    },
+    {
+      "name": "Company",
+      "description": "회사 관리 API - 회사 정보 및 설정"
+    },
+    {
+      "name": "Site",
+      "description": "사이트 관리 API - 사이트 생성, 조회, 수정 (구역 정보 포함)"
+    },
+    {
+      "name": "Zone",
+      "description": "구역 관리 API - 구역 생성, 조회, 수정"
+    },
+    {
+      "name": "Gateway",
+      "description": "게이트웨이 관리 API - 게이트웨이 정보 및 연결 상태 (사이트/구역 정보 포함)"
+    },
+    {
+      "name": "IoT Credentials",
+      "description": "AWS IoT 인증서 관리 API - 인증서 생성, 조회, 파일 다운로드"
+    }
+  ],
+  "servers": [
+    {
+      "url": "/",
+      "description": "현재 서버 (Current Host)"
+    },
+    {
+      "url": "https://api-dev.altis-ai.com",
+      "description": "개발 서버 (Development)"
+    },
+    {
+      "url": "https://api.altis-ai.com",
+      "description": "운영 서버 (Production)"
+    },
+    {
+      "url": "http://localhost:3000",
+      "description": "로컬 서버 (Local)"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "access-token": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "description": "JWT Access Token (로그인 시 발급받은 AccessToken 사용)"
+      }
+    },
+    "schemas": {
+      "SignUpDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "사용자 이메일",
+            "example": "user@example.com"
+          },
+          "name": {
+            "type": "string",
+            "description": "사용자 이름",
+            "example": "홍길동"
+          },
+          "password": {
+            "type": "string",
+            "description": "비밀번호 (최소 8자, 대문자, 소문자 포함)",
+            "example": "Password123"
+          }
+        },
+        "required": [
+          "email",
+          "name",
+          "password"
+        ]
+      },
+      "UserConfigDto": {
+        "type": "object",
+        "properties": {
+          "receiveEmailAlarm": {
+            "type": "boolean",
+            "description": "이메일 알람 수신 여부",
+            "example": true
+          },
+          "alarmLevel": {
+            "type": "string",
+            "enum": [
+              "Critical",
+              "All"
+            ],
+            "description": "알람 수신 레벨",
+            "example": "All"
+          }
+        }
+      },
+      "UserResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Cognito에서 발행한 sub"
+          },
+          "companyId": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "siteIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "role": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserRole"
+              }
+            ]
+          },
+          "config": {
+            "description": "사용자 설정",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserConfigDto"
+              }
+            ]
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "companyId",
+          "email",
+          "name"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "사용자 이메일",
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "사용자 비밀번호",
+            "example": "Password123"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "AuthTokenResponseDto": {
+        "type": "object",
+        "properties": {
+          "AccessToken": {
+            "type": "string",
+            "description": "액세스 토큰",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "IdToken": {
+            "type": "string",
+            "description": "ID 토큰",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "RefreshToken": {
+            "type": "string",
+            "description": "리프레시 토큰",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "TokenType": {
+            "type": "string",
+            "description": "토큰 타입",
+            "example": "Bearer"
+          },
+          "ExpiresIn": {
+            "type": "number",
+            "description": "만료 시간(초)",
+            "example": 3600
+          }
+        }
+      },
+      "ChangePasswordDto": {
+        "type": "object",
+        "properties": {
+          "previousPassword": {
+            "type": "string",
+            "description": "현재 비밀번호",
+            "example": "OldPassword123"
+          },
+          "proposedPassword": {
+            "type": "string",
+            "description": "새 비밀번호 (최소 8자, 대문자, 소문자 포함)",
+            "example": "NewPassword123"
+          }
+        },
+        "required": [
+          "previousPassword",
+          "proposedPassword"
+        ]
+      },
+      "ForgotPasswordDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "사용자 이메일 주소",
+            "example": "user@example.com"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "ConfirmForgotPasswordDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "사용자 이메일 주소",
+            "example": "user@example.com"
+          },
+          "confirmationCode": {
+            "type": "string",
+            "description": "이메일로 전송된 확인 코드",
+            "example": "123456"
+          },
+          "newPassword": {
+            "type": "string",
+            "description": "새 비밀번호 (최소 8자, 대문자, 소문자 포함)",
+            "example": "NewPassword123"
+          }
+        },
+        "required": [
+          "email",
+          "confirmationCode",
+          "newPassword"
+        ]
+      },
+      "RefreshTokenDto": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "description": "Refresh token",
+            "example": "eyJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiUlNBLU9BRVAifQ..."
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "RefreshTokenResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "새로운 액세스 토큰",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "idToken": {
+            "type": "string",
+            "description": "새로운 ID 토큰",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "tokenType": {
+            "type": "string",
+            "description": "토큰 타입",
+            "example": "Bearer"
+          },
+          "expiresIn": {
+            "type": "number",
+            "description": "만료 시간(초)",
+            "example": 3600
+          }
+        },
+        "required": [
+          "accessToken",
+          "idToken",
+          "tokenType",
+          "expiresIn"
+        ]
+      },
+      "UserRole": {
+        "type": "string",
+        "enum": [
+          "Admin",
+          "Alt2",
+          "User",
+          "Unknown"
+        ]
+      },
+      "UpdateMeDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "사용자 이름",
+            "example": "홍길동"
+          },
+          "config": {
+            "description": "사용자 설정",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserConfigDto"
+              }
+            ]
+          }
+        }
+      },
+      "UpdateUserDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "사용자 이름",
+            "example": "홍길동"
+          },
+          "siteIds": {
+            "description": "접근 가능한 사이트 ID 목록",
+            "example": [
+              "site-1",
+              "site-2"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "role": {
+            "type": "string",
+            "description": "사용자 역할",
+            "enum": [
+              "Admin",
+              "Alt2",
+              "User",
+              "Unknown"
+            ],
+            "example": "User"
+          },
+          "config": {
+            "description": "사용자 설정",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserConfigDto"
+              }
+            ]
+          }
+        }
+      },
+      "SignUpAdminDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "사용자 이메일",
+            "example": "user@example.com"
+          },
+          "name": {
+            "type": "string",
+            "description": "사용자 이름",
+            "example": "홍길동"
+          },
+          "password": {
+            "type": "string",
+            "description": "비밀번호 (최소 8자, 대문자, 소문자 포함)",
+            "example": "Password123"
+          },
+          "companyId": {
+            "type": "string",
+            "description": "회사 ID",
+            "example": "company-123"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "Admin",
+              "Alt2",
+              "User",
+              "Unknown"
+            ],
+            "description": "사용자 역할",
+            "example": "Admin"
+          }
+        },
+        "required": [
+          "email",
+          "name",
+          "password",
+          "companyId"
+        ]
+      },
+      "SiteConfigResponseDto": {
+        "type": "object",
+        "properties": {
+          "temperatureUnit": {
+            "type": "string",
+            "enum": [
+              "C",
+              "F"
+            ],
+            "description": "온도 단위",
+            "example": "C"
+          },
+          "timezone": {
+            "type": "string",
+            "description": "시간대",
+            "example": "Asia/Seoul"
+          },
+          "routerIpAddress": {
+            "type": "string",
+            "description": "라우터 IP 주소",
+            "example": "192.168.1.1"
+          }
+        }
+      },
+      "ZoneResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "구역 ID",
+            "example": "zone-123"
+          },
+          "siteId": {
+            "type": "string",
+            "description": "사이트 ID",
+            "example": "site-1"
+          },
+          "companyId": {
+            "type": "string",
+            "description": "회사 ID",
+            "example": "company-1"
+          },
+          "name": {
+            "type": "string",
+            "description": "구역 이름",
+            "example": "1층 로비"
+          },
+          "description": {
+            "type": "string",
+            "description": "구역 설명",
+            "example": "건물 1층 로비 구역"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "생성 날짜",
+            "example": "2025-05-24T12:30:00Z"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "수정 날짜",
+            "example": "2025-05-24T12:30:00Z"
+          }
+        },
+        "required": [
+          "id",
+          "siteId",
+          "companyId",
+          "name",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "SiteResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "사이트 ID",
+            "example": "site-123"
+          },
+          "companyId": {
+            "type": "string",
+            "description": "회사 ID",
+            "example": "altis-ai"
+          },
+          "name": {
+            "type": "string",
+            "description": "사이트 이름",
+            "example": "알티스 본사"
+          },
+          "description": {
+            "type": "string",
+            "description": "사이트 설명",
+            "example": "서울특별시 강남구에 위치한 본사 건물"
+          },
+          "config": {
+            "description": "사이트 설정",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SiteConfigResponseDto"
+              }
+            ]
+          },
+          "status": {
+            "type": "string",
+            "description": "사이트 상태",
+            "example": "active",
+            "enum": [
+              "active",
+              "inactive",
+              "maintenance"
+            ]
+          },
+          "zones": {
+            "description": "이 사이트에 속한 구역 목록",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ZoneResponseDto"
+            }
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "생성일",
+            "example": "2025-05-24T12:00:00.000Z"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "수정일",
+            "example": "2025-05-24T12:00:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "companyId",
+          "name"
+        ]
+      },
+      "CompanyResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "회사 ID",
+            "example": "altis-ai"
+          },
+          "name": {
+            "type": "string",
+            "description": "회사 이름",
+            "example": "Aitls AI"
+          },
+          "status": {
+            "type": "string",
+            "description": "회사 상태",
+            "example": "active",
+            "enum": [
+              "active",
+              "inactive",
+              "pending"
+            ]
+          },
+          "hosting": {
+            "type": "boolean",
+            "description": "호스팅 여부",
+            "example": false
+          },
+          "sites": {
+            "description": "이 회사에 속한 사이트 목록",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SiteResponseDto"
+            }
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "생성일",
+            "example": "2025-05-24T12:00:00.000Z"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "수정일",
+            "example": "2025-05-24T12:00:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "UpdateCompanyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "회사 이름",
+            "example": "Aitls AI"
+          },
+          "hosting": {
+            "type": "boolean",
+            "description": "호스팅 여부",
+            "example": false
+          }
+        }
+      },
+      "SiteConfigDto": {
+        "type": "object",
+        "properties": {
+          "temperatureUnit": {
+            "type": "string",
+            "enum": [
+              "C",
+              "F"
+            ],
+            "description": "온도 단위",
+            "example": "C"
+          },
+          "timezone": {
+            "type": "string",
+            "description": "시간대",
+            "example": "Asia/Seoul"
+          },
+          "routerIpAddress": {
+            "type": "string",
+            "description": "라우터 IP 주소",
+            "example": "192.168.1.1"
+          }
+        }
+      },
+      "CreateSiteDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "사이트 이름",
+            "example": "알티스 본사"
+          },
+          "companyId": {
+            "type": "string",
+            "description": "회사 ID",
+            "example": "altis-ai"
+          },
+          "description": {
+            "type": "string",
+            "description": "사이트 설명",
+            "example": "서울특별시 강남구에 위치한 본사 건물"
+          },
+          "config": {
+            "description": "사이트 설정",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SiteConfigDto"
+              }
+            ]
+          },
+          "status": {
+            "type": "string",
+            "description": "사이트 상태",
+            "example": "active",
+            "enum": [
+              "active",
+              "inactive",
+              "maintenance"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "companyId"
+        ]
+      },
+      "UpdateSiteDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "사이트 이름",
+            "example": "알티스 본사"
+          },
+          "description": {
+            "type": "string",
+            "description": "사이트 설명",
+            "example": "서울특별시 강남구에 위치한 본사 건물"
+          },
+          "config": {
+            "description": "사이트 설정",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SiteConfigDto"
+              }
+            ]
+          },
+          "status": {
+            "type": "string",
+            "description": "사이트 상태",
+            "example": "active",
+            "enum": [
+              "active",
+              "inactive",
+              "maintenance"
+            ]
+          }
+        }
+      },
+      "CreateZoneDto": {
+        "type": "object",
+        "properties": {
+          "siteId": {
+            "type": "string",
+            "description": "사이트 ID",
+            "example": "site-1"
+          },
+          "companyId": {
+            "type": "string",
+            "description": "회사 ID",
+            "example": "company-1"
+          },
+          "name": {
+            "type": "string",
+            "description": "구역 이름",
+            "example": "1층 로비"
+          },
+          "description": {
+            "type": "string",
+            "description": "구역 설명",
+            "example": "건물 1층 로비 구역"
+          }
+        },
+        "required": [
+          "siteId",
+          "companyId",
+          "name"
+        ]
+      },
+      "UpdateZoneDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "구역 이름",
+            "example": "1층 로비 (수정)"
+          },
+          "description": {
+            "type": "string",
+            "description": "구역 설명",
+            "example": "건물 1층 로비 구역 (수정)"
+          }
+        }
+      },
+      "GatewayInfoDto": {
+        "type": "object",
+        "properties": {
+          "gatewayType": {
+            "type": "string",
+            "description": "게이트웨이 타입",
+            "example": "STANDARD"
+          },
+          "firmwareVersion": {
+            "type": "string",
+            "description": "펌웨어 버전",
+            "example": "1.2.3"
+          },
+          "lastConnectionTime": {
+            "format": "date-time",
+            "type": "string",
+            "description": "마지막 접속 시간",
+            "example": "2025-05-24T13:45:30Z"
+          }
+        }
+      },
+      "CreateGatewayDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "게이트웨이 이름",
+            "example": "1층 로비 게이트웨이"
+          },
+          "companyId": {
+            "type": "string",
+            "description": "회사 ID",
+            "example": "company-1"
+          },
+          "siteId": {
+            "type": "string",
+            "description": "사이트 ID",
+            "example": "site-1"
+          },
+          "zoneId": {
+            "type": "string",
+            "description": "구역 ID",
+            "example": "zone-1"
+          },
+          "info": {
+            "description": "게이트웨이 정보",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GatewayInfoDto"
+              }
+            ]
+          },
+          "macAddress": {
+            "type": "string",
+            "description": "MAC 주소",
+            "example": "00:11:22:33:44:55"
+          },
+          "status": {
+            "type": "string",
+            "description": "게이트웨이 상태",
+            "enum": [
+              "Registerd",
+              "Unregisterd"
+            ],
+            "example": "Unregisterd"
+          },
+          "portNumber": {
+            "type": "number",
+            "description": "포트 번호",
+            "example": 8080
+          }
+        },
+        "required": [
+          "name",
+          "companyId",
+          "macAddress",
+          "status"
+        ]
+      },
+      "GatewayInfoResponseDto": {
+        "type": "object",
+        "properties": {
+          "connectionStatus": {
+            "type": "string",
+            "enum": [
+              "Connected",
+              "Disconnected",
+              "Waiting",
+              "Error"
+            ],
+            "description": "게이트웨이 접속 상태",
+            "example": "Connected"
+          },
+          "gatewayType": {
+            "type": "string",
+            "description": "게이트웨이 타입",
+            "example": "STANDARD"
+          },
+          "firmwareVersion": {
+            "type": "string",
+            "description": "펌웨어 버전",
+            "example": "1.2.3"
+          },
+          "lastConnectionTime": {
+            "format": "date-time",
+            "type": "string",
+            "description": "마지막 접속 시간",
+            "example": "2025-05-24T13:45:30Z"
+          }
+        }
+      },
+      "GatewayResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "게이트웨이 ID",
+            "example": "gateway-123"
+          },
+          "companyId": {
+            "type": "string",
+            "description": "회사 ID",
+            "example": "company-1"
+          },
+          "siteId": {
+            "type": "string",
+            "description": "사이트 ID",
+            "example": "site-1"
+          },
+          "zoneId": {
+            "type": "string",
+            "description": "구역 ID",
+            "example": "zone-1"
+          },
+          "name": {
+            "type": "string",
+            "description": "게이트웨이 이름",
+            "example": "1층 로비 게이트웨이"
+          },
+          "info": {
+            "description": "게이트웨이 정보",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GatewayInfoResponseDto"
+              }
+            ]
+          },
+          "macAddress": {
+            "type": "string",
+            "description": "MAC 주소",
+            "example": "00:11:22:33:44:55"
+          },
+          "portNumber": {
+            "type": "number",
+            "description": "포트 번호",
+            "example": 8080
+          },
+          "site": {
+            "description": "연결된 사이트 정보",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SiteResponseDto"
+              }
+            ]
+          },
+          "zone": {
+            "description": "연결된 구역 정보",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ZoneResponseDto"
+              }
+            ]
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "생성 날짜",
+            "example": "2025-05-24T12:30:00Z"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "수정 날짜",
+            "example": "2025-05-24T12:30:00Z"
+          }
+        },
+        "required": [
+          "id",
+          "companyId",
+          "name",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "UpdateGatewayDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "게이트웨이 이름",
+            "example": "1층 로비 게이트웨이 (수정)"
+          },
+          "siteId": {
+            "type": "string",
+            "description": "사이트 ID",
+            "example": "site-1"
+          },
+          "zoneId": {
+            "type": "string",
+            "description": "구역 ID",
+            "example": "zone-1"
+          },
+          "info": {
+            "description": "게이트웨이 정보",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GatewayInfoDto"
+              }
+            ]
+          },
+          "macAddress": {
+            "type": "string",
+            "description": "MAC 주소",
+            "example": "00:11:22:33:44:55"
+          },
+          "status": {
+            "type": "string",
+            "description": "게이트웨이 상태",
+            "enum": [
+              "Registerd",
+              "Unregisterd"
+            ],
+            "example": "Registerd"
+          },
+          "portNumber": {
+            "type": "number",
+            "description": "포트 번호",
+            "example": 8080
+          }
+        }
+      },
+      "CreateIoTCredentialDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "인증서 이름",
+            "example": "AltisAI Device Certificate"
+          },
+          "companyId": {
+            "type": "string",
+            "description": "회사 ID",
+            "example": "company-123"
+          },
+          "policyName": {
+            "type": "string",
+            "description": "연결할 IoT Policy 이름",
+            "example": "AltisAIDevicePolicy"
+          },
+          "description": {
+            "type": "string",
+            "description": "인증서 설명",
+            "example": "Certificate for Altis AI device"
+          }
+        },
+        "required": [
+          "name",
+          "companyId"
+        ]
+      },
+      "IoTCredentialResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "IoT 인증 키 ID (Certificate ID)",
+            "example": "cert-1234567890abcdef"
+          },
+          "companyId": {
+            "type": "string",
+            "description": "회사 ID",
+            "example": "altis-ai"
+          },
+          "name": {
+            "type": "string",
+            "description": "인증서 이름",
+            "example": "AltisAI Device Certificate"
+          },
+          "description": {
+            "type": "string",
+            "description": "인증서 설명",
+            "example": "Certificate for Altis AI device"
+          },
+          "endPoint": {
+            "type": "string",
+            "description": "IoT Core 엔드포인트",
+            "example": "mqtt-dev.altis-ai.com"
+          },
+          "stage": {
+            "type": "string",
+            "description": "배포 스테이지",
+            "example": "dev"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "생성일시",
+            "example": "2023-01-01T00:00:00.000Z"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "수정일시",
+            "example": "2023-01-01T00:00:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "companyId",
+          "name",
+          "endPoint",
+          "stage",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "UpdateIoTCredentialDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "인증서 이름",
+            "example": "Updated AltisAI Device Certificate"
+          },
+          "description": {
+            "type": "string",
+            "description": "인증서 설명",
+            "example": "Updated certificate description for Altis AI device"
+          }
+        }
+      }
+    }
+  }
+}
